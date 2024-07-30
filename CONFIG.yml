@@ -1,0 +1,28 @@
+# 机器人的配置文件
+
+# 若您的适配器需要Token，请填写此字段
+TOKEN: ''
+# 若您的适配器需要Cookie，请填写此字段
+COOKIE: ''
+# 若您的适配器需要ws连接，请填写此字段
+WSBASE: ''
+# 若您的适配器需要请求http地址，请填写此字段
+HTTPBASE: ''
+
+# 所用的适配器
+adapters_you_can_choose: ['console']
+ADAPTER: 'console'
+
+# 机器人指令头
+PREFIX: '/'
+
+# 用户权限配置
+# 格式为 {'user_id': 权限等级}
+# 推荐使用：
+#   0：guest
+#   2：admin
+#   3：owner
+PERMISSION: {
+  '114514': 3,
+  '2538523045': 3
+}
