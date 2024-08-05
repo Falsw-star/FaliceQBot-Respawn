@@ -1,8 +1,8 @@
 """
 Adapter in satori
 """
-from Falice import logger
-from Falice.segments import Group, User, Message, Base_Adapter
+from faliceqbot import logger
+from faliceqbot.segments import Group, User, Message, Base_Adapter
 import re
 import requests
 import threading, time

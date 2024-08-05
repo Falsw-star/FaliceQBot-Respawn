@@ -1,5 +1,5 @@
-from Falice.segments import Message, Plugin, PluginList
-from Falice.segments import PluginFuncType, PluginTriggerType, PluginTriggerListType
+from faliceqbot.segments import Message, Plugin, PluginList
+from faliceqbot.segments import PluginFuncType, PluginTriggerType, PluginTriggerListType
 
 class Matcher:
     def __init__(self, PluginList: PluginList) -> None:

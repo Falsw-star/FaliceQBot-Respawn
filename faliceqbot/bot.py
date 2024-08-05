@@ -1,10 +1,11 @@
 import importlib
 import threading
-import os, time
+import os, time, zipfile
 import traceback
-from Falice import logger
-from Falice.matcher import Matcher
-from Falice.segments import Config, Message, Base_Adapter, Sender, Plugin, PluginList
+from io import StringIO
+from faliceqbot import logger
+from faliceqbot.matcher import Matcher
+from faliceqbot.segments import Config, Message, Base_Adapter, Sender, Plugin, PluginList
 
 class QBot:
     def __init__(self,
@@ -13,10 +14,12 @@ class QBot:
             wsbase: str = '',
             httpbase: str = '',
             prefix: str = '/',
-            permission: dict = {},
+            permission: dict[str, StringIO] = {},
             plugin_folder: str = 'plugins',
             breath: float = 0.1,
-            delay: float = 0.1
+            delay: float = 0.1,
+            log_to_console: bool = True,
+            log_to_file: bool = False,
         ) -> None:
         """
         Falice's main class. Easy to use.
@@ -26,17 +29,21 @@ class QBot:
         :param wsbase: If your adapter need a websocket connection, you should put the link here.
         :param httpbase: If your adapter need a http link to request, you should put it here.
         :param prefix: The prefix of your command.
-        :param permission: The permission dictionary for plugins. Stores permissions for special users like dict[str, int] : {'<user_id>': <level>}
+        :param permission: The permission dictionary for plugins. Stores permissions for special users as a dict[str, int] : {'<user_id>': <level>}
         :param plugin_folder: The folder where your plugins file are located.
         :param breath: Each time the bot dealed with current messages, it will sleep for a while.
         :param delay: When you respond to a message(by Message.respond), the bot will have to wait for a while before sending the message.
+        :param log_to_console: Will print each message to console.
+        :param log_to_file: Will save each message to a file.
         """
         self.config: Config = Config(token, wsbase, httpbase, prefix, permission, delay)
         adapter_name = adapter.lower()
-        self.adapter: Base_Adapter = importlib.import_module(f'Falice.adapters.{adapter_name}').Adapter(self.config)
+        self.adapter: Base_Adapter = importlib.import_module(f'faliceqbot.adapters.{adapter_name}').Adapter(self.config)
         self.adapter.platform = adapter
         self.plugin_folder: str = plugin_folder
         self.breath: float = breath
+        self.log_to_console: bool = log_to_console
+        self.log_to_file: bool = log_to_file
         logger.runtime(f'Using adapter: {adapter_name}...')
         self.Formatter: Base_Adapter.Formatter = self.adapter.Formatter()
         self.API: Base_Adapter.API = self.adapter.API(self.adapter)
@@ -45,6 +52,7 @@ class QBot:
         
         self.MESSAGES: list[Message] = []
         self.PLUGINS: list[Plugin] = []
+        self.log_files: dict = {}
 
         self.STATUS: bool = True
 
@@ -54,6 +62,7 @@ class QBot:
         """
         Run your bot: Start Listener, load plugins, and start responding to messages.
         """
+        if self.log_to_file and not os.path.exists('logs'): os.mkdir('logs')
         threading.Thread(target=self.Listener.listen, args=(self.MESSAGES,)).start()
         plugins_folder: list = os.listdir(self.plugin_folder)
         for plugin_file_name in plugins_folder:
@@ -74,7 +83,20 @@ class QBot:
                 if self.MESSAGES:
                     message: Message = self.MESSAGES.pop(0)
                     message.Sender = self.Sender
-                    logger.chat('{} in {} : {}'.format(message.user.id, 'Private' if message.private else message.group_id, message.content))
+                    if self.log_to_console: logger.chat('{} in {} : {}'.format(message.user.id, 'Private' if message.private else message.group_id, message.content))
+                    if self.log_to_file:
+                        chat_name = f'Private{message.user.id}' if message.private else f'Group{message.group_id}'
+                        try:
+                            self.log_files[chat_name].write(f'\n{message.user.id} : {message.content}')
+                        except KeyError:
+                            self.log_files[chat_name] = open(f'logs/{chat_name}.log', 'a', encoding='utf-8')
+                            try:
+                                self.log_files[chat_name].write(f'Start Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}')
+                                self.log_files[chat_name].write(f'\n{message.user.id} : {message.content}')
+                            except Exception as e:
+                                logger.error(f'Error writing to log file: {e}')
+                        except Exception as e:
+                            logger.error(f'Error writing to log file: {e}')
                     functions = matcher.match(message)
                     for function in functions:
                         threading.Thread(target=function, args=(message,)).start()
@@ -82,12 +104,15 @@ class QBot:
             
         except self.BotFinishException:
             logger.info('Bot stopped, exiting...')
-            self.Listener.STATUS = False
             exit(0)
         except KeyboardInterrupt:
             logger.info('Ctrl+C pressed, exiting...')
-            self.Listener.STATUS = False
             exit(0)
         except Exception as e:
             logger.error('Error: {}'.format(e))
             logger.error('Error: {}'.format(traceback.format_exc()))
+        finally:
+            self.Listener.STATUS = False
+            for file in self.log_files.values():
+                file.write(f'\nEnd Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\n\n')
+                file.close()

@@ -1,7 +1,8 @@
-from Falice import logger
+from faliceqbot import logger
 from typing import Callable, Union, Any, Optional
 import re
 import time
+
 
 class Config:
     def __init__(self,
@@ -36,6 +37,122 @@ class User:
         self.is_bot: bool = is_bot
 
 
+class Base_Adapter:
+    def __init__(self, config: Config) -> None:
+        self.config = config
+        self.authorization = self.Authorize()
+        self.platform = 'Base'
+    
+    class Authorization:
+        def __init__(self, platform: str, bot_id: str, bot_status: int) -> None:
+            self.platform = platform
+            self.bot_id = bot_id
+            self.bot_status = bot_status
+
+    def Authorize(self) -> Authorization:
+        return self.Authorization('Base', 'Base_id', 0)
+
+    class Formatter:
+        def encode(self, message: str) -> str:
+            return f"[Base encode]: {message}"
+        
+        def decode(self, message: str) -> str:
+            return f'[Base decode]: {message}'
+    
+    class API:
+        def __init__(self, adapter) -> None:
+            self.authorization = adapter.authorization
+            self.config = adapter.config
+        
+        def send_message(self, group_id: int, message: str) -> None:
+            ...
+        
+        def send_private_message(self, user_id: int, message: str) -> None:
+            ...
+
+        def get_user(self, user_id: int) -> User | None:
+            ...
+
+        def get_group(self, group_id: int) -> Group | None:
+            ...
+
+        def get_friends(self) -> list[User] | None:
+            ...
+
+        def get_group_list(self) -> list[Group] | None:
+            ...
+        
+        def get_members(self, group_id: int) -> list[User] | None:
+            ...
+    
+    class Listener:
+        def __init__(self, adapter, Formatter, API) -> None:
+            self.authorization = adapter.authorization
+            self.config = adapter.config
+            self.Formatter = Formatter
+            self.API = API
+            self.STATUS = True
+            
+        def listen(self, message_list: list) -> None:
+            logger.success('Base Listener Started')
+            while self.STATUS:
+                ...
+            logger.success('Base Listener Stopped')
+        
+        def respond(self, group_id: int) -> Callable[[str], None]:
+            def wrapper(message: str) -> None:
+                time.sleep(self.config.delay)
+                self.API.send_message(group_id, message)
+            return wrapper
+        
+        def respond_private(self, user_id: int) -> Callable[[str], None]:
+            def wrapper(message: str) -> None:
+                self.API.send_private_message(user_id, message)
+            return wrapper
+
+
+class Sender:
+    def __init__(self, Formatter: Base_Adapter.Formatter, API: Base_Adapter.API) -> None:
+        self.Formatter: Base_Adapter.Formatter = Formatter
+        self.API: Base_Adapter.API = API
+    
+    def image(self, url: str) -> str:
+        return '<<IMAGE:{}>>'.format(url)
+    
+    def file(self, url: str) -> str:
+        return '<<FILE:{}>>'.format(url)
+    
+    def at(self, user_id: int) -> str:
+        return '<<AT:{}>>'.format(user_id)
+    
+    def lis(self, items: list[str], name: str = '', dot: str = ' - ', colon: str = ':') -> str:
+        result = f'{name}{colon}\n' if name else ''
+        for item in items:
+            result += f'{dot}{item}\n'
+        return result.strip('\n').strip(' ')
+
+    def send_message(self, group_id: int, message: str) -> None:
+        self.API.send_message(group_id, self.Formatter.encode(message).strip('\n').strip(' '))
+    
+    def send_private_message(self, user_id: int, message: str) -> None:
+        self.API.send_private_message(user_id, self.Formatter.encode(message).strip('\n').strip(' '))
+    
+    def get_user(self, user_id: int) -> User | None:
+        return self.API.get_user(user_id)
+    
+    def get_group(self, group_id: int) -> Group | None:
+        return self.API.get_group(group_id)
+    
+    def get_friends(self) -> list[User] | None:
+        return self.API.get_friends()
+    
+    def get_groups(self) -> list[Group] | None:
+        return self.API.get_group_list()
+
+    def get_members(self, group_id: int) -> list[User] | None:
+        return self.API.get_members(group_id)
+
+
 class Message:
     def __init__(self, config: Config, message_id: str, content: str, user: User, private: bool, respond_function: Optional[Callable] = None) -> None:
         self.config = config
@@ -46,7 +163,7 @@ class Message:
         self.group_id: int = self.user.group.id
         self._respond: Callable[[str], None] = respond_function if respond_function is not None else self._empty_respond
         self.tag: Optional[str] = None
-        self.Sender: Optional[Any] = None
+        self.Sender: Sender
     
     def _empty_respond(self, *args, **kwargs) -> None:
         logger.fail("Response function is not defined (may be a service) but you tried to pass a content to it!")
@@ -196,80 +313,6 @@ class Plugin:
             self.onFullMatchList.append(PluginTriggerType(function, content, permission, priority, block))
 
 
-class Base_Adapter:
-    def __init__(self, config: Config) -> None:
-        self.config = config
-        self.authorization = self.Authorize()
-        self.platform = 'Base'
-    
-    class Authorization:
-        def __init__(self, platform: str, bot_id: str, bot_status: int) -> None:
-            self.platform = platform
-            self.bot_id = bot_id
-            self.bot_status = bot_status
-
-    def Authorize(self) -> Authorization:
-        return self.Authorization('Base', 'Base_id', 0)
-
-    class Formatter:
-        def encode(self, message: str) -> str:
-            return f"[Base encode]: {message}"
-        
-        def decode(self, message: str) -> str:
-            return f'[Base decode]: {message}'
-    
-    class API:
-        def __init__(self, adapter) -> None:
-            self.authorization = adapter.authorization
-            self.config = adapter.config
-        
-        def send_message(self, group_id: int, message: str) -> None:
-            ...
-        
-        def send_private_message(self, user_id: int, message: str) -> None:
-            ...
-
-        def get_user(self, user_id: int) -> User | None:
-            ...
-
-        def get_group(self, group_id: int) -> Group | None:
-            ...
-
-        def get_friends(self) -> list[User] | None:
-            ...
-
-        def get_group_list(self) -> list[Group] | None:
-            ...
-        
-        def get_members(self, group_id: int) -> list[User] | None:
-            ...
-    
-    class Listener:
-        def __init__(self, adapter, Formatter, API) -> None:
-            self.authorization = adapter.authorization
-            self.config = adapter.config
-            self.Formatter = Formatter
-            self.API = API
-            self.STATUS = True
-            
-        def listen(self, message_list: list) -> None:
-            logger.success('Base Listener Started')
-            while self.STATUS:
-                ...
-            logger.success('Base Listener Stopped')
-        
-        def respond(self, group_id: int) -> Callable[[str], None]:
-            def wrapper(message: str) -> None:
-                time.sleep(self.config.delay)
-                self.API.send_message(group_id, message)
-            return wrapper
-        
-        def respond_private(self, user_id: int) -> Callable[[str], None]:
-            def wrapper(message: str) -> None:
-                self.API.send_private_message(user_id, message)
-            return wrapper
-
-
 class PluginList:
     def __init__(self, plugin_list: list[Plugin]) -> None:
         self.plugin_list: list[Plugin] = plugin_list
@@ -337,43 +380,3 @@ class PluginList:
                         self.plugin_status(message, False, False)
 
 
-class Sender:
-    def __init__(self, Formatter: Base_Adapter.Formatter, API: Base_Adapter.API) -> None:
-        self.Formatter: Base_Adapter.Formatter = Formatter
-        self.API: Base_Adapter.API = API
-    
-    def image(self, url: str) -> str:
-        return '<<IMAGE:{}>>'.format(url)
-    
-    def file(self, url: str) -> str:
-        return '<<FILE:{}>>'.format(url)
-    
-    def at(self, user_id: int) -> str:
-        return '<<AT:{}>>'.format(user_id)
-    
-    def lis(self, items: list[str], name: str = '', dot: str = ' - ', colon: str = ':') -> str:
-        result = f'{name}{colon}\n' if name else ''
-        for item in items:
-            result += f'{dot}{item}\n'
-        return result.strip('\n').strip(' ')
-
-    def send_message(self, group_id: int, message: str) -> None:
-        self.API.send_message(group_id, self.Formatter.encode(message).strip('\n').strip(' '))
-    
-    def send_private_message(self, user_id: int, message: str) -> None:
-        self.API.send_private_message(user_id, self.Formatter.encode(message).strip('\n').strip(' '))
-    
-    def get_user(self, user_id: int) -> User | None:
-        return self.API.get_user(user_id)
-    
-    def get_group(self, group_id: int) -> Group | None:
-        return self.API.get_group(group_id)
-    
-    def get_friends(self) -> list[User] | None:
-        return self.API.get_friends()
-    
-    def get_groups(self) -> list[Group] | None:
-        return self.API.get_group_list()
-
-    def get_members(self, group_id: int) -> list[User] | None:
-        return self.API.get_members(group_id)

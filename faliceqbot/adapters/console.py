@@ -5,8 +5,8 @@ The bot is '2333333'.
 Type in console to send message to '1919810'.
 Type in console with a start of 'private:' to send message in private.
 """
-from Falice import logger
-from Falice.segments import Group, User, Message, Base_Adapter
+from faliceqbot import logger
+from faliceqbot.segments import Group, User, Message, Base_Adapter
 import time, os, platform, sys
 import re
 

@@ -10,80 +10,37 @@ class Colors:
     UNDERLINE = '\033[4m'
     ENDC = '\033[0m'
 
+import time
+
 def paint(content: str, color) -> str:
     return (color + content + Colors.ENDC)
 
-import time
-class Tags:
-    INFO = '[{}]'.format(paint("INFO", Colors.BLUE))
-    SUCCESS = '[{}]'.format(paint("SUCCESS", Colors.GREEN))
-    WARNING = '[{}]'.format(paint("WARNING", Colors.RED))
-    ERROR = '[{}]'.format(paint("ERROR", Colors.RED))
-    FAIL = '[{}]'.format(paint("FAIL", Colors.GREY))
-    DEBUG = '[{}]'.format(paint("DEBUG", Colors.PURPLE))
-    RUNTIME = '[{}]'.format(paint("RUNTIME", Colors.PURPLE))
-    CHAT = '[{}]'.format(paint("CHAT", Colors.YELLOW))
-
-def TimeTag() -> str:
+def time_tag() -> str:
     return '[{}]'.format(time.strftime("%H:%M:%S", time.localtime()))
 
-def log(content: str, level: int = 0) -> None:
-    """
-    Logs a message to the terminal.
-    LEVELS:
-    0: INFO
-    1: SUCCESS
-    2: WARNING
-    3: ERROR
-    4: fail
-    5: DEBUG
-    6: RUNTIME
-    7: CHAT
-    """
-    match level:
-        case 0:
-            print('{}{} : {}'.format(TimeTag(), Tags.INFO, content))
-        case 1:
-            print('{}{} : {}'.format(TimeTag(), Tags.SUCCESS, paint(content, Colors.GREEN)))
-        case 2:
-            print('{}{} : {}'.format(TimeTag(), Tags.WARNING, content))
-        case 3:
-            print('{}{} : {}'.format(TimeTag(), Tags.ERROR, paint(content, Colors.RED)))
-        case 4:
-            print('{}{} : {}'.format(TimeTag(), Tags.FAIL, paint(content, Colors.GREY)))
-        case 5:
-            print('{}{} : {}'.format(TimeTag(), Tags.DEBUG, content))
-        case 6:
-            print('{}{} : {}'.format(TimeTag(), Tags.RUNTIME, paint(content, Colors.PURPLE)))
-        case 7:
-            print('{}{} : {}'.format(TimeTag(), Tags.CHAT, paint(content, Colors.YELLOW)))
-
+def log(tag: str, content: str, tag_color: str, content_color: str) -> None:
+    print('{}[{}] : {}'.format(time_tag(), paint(tag, tag_color), paint(content, content_color)))
 
 def info(content: str) -> None:
-    log(content, 0)
+    log(tag='INFO', content=content, tag_color=Colors.BLUE, content_color=Colors.BLACK)
 
 def success(content: str) -> None:
-    log(content, 1)
+    log(tag='SUCCESS', content=content, tag_color=Colors.GREEN, content_color=Colors.GREEN)
 
 def warning(content: str) -> None:
-    log(content, 2)
+    log(tag='WARNING', content=content, tag_color=Colors.RED, content_color=Colors.YELLOW)
 
 def error(content: str) -> None:
-    log(content, 3)
+    log(tag='ERROR', content=content, tag_color=Colors.RED, content_color=Colors.RED)
 
 def fail(content: str) -> None:
-    log(content, 4)
+    log(tag='FAIL', content=content, tag_color=Colors.GREY, content_color=Colors.GREY)
 
 def debug(content: str) -> None:
-    log(content, 5)
+    log(tag='DEBUG', content=content, tag_color=Colors.PURPLE, content_color=Colors.BLACK)
 
 def runtime(content: str) -> None:
-    log(content, 6)
+    log(tag='RUNTIME', content=content, tag_color=Colors.PURPLE, content_color=Colors.PURPLE)
 
 def chat(content: str) -> None:
-    log(content, 7)
-
-
-def add_line(file_name: str, line: str) -> None:
-    with open(file_name, 'a') as f:
-        f.write(line + '\n')
+    log(tag='CHAT', content=content, tag_color=Colors.BLUE, content_color=Colors.BLUE)
