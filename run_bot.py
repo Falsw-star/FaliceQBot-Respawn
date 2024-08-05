@@ -1,5 +1,5 @@
 from config import Config
-from Falice import QBot
+from faliceqbot import QBot
 
 config = Config()
 Falice = QBot(
