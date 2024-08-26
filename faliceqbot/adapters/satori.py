@@ -48,6 +48,8 @@ class Adapter(Base_Adapter):
             message = re.sub(r'<<IMAGE:(.*?)>>', r'<img src="\1"/>', message)
             message = re.sub(r'<<FILE:(.*?)>>', r'<file src="\1"/>', message)
             message = re.sub(r'<<AT:(.*?)>>', r'<at id="\1"/>', message)
+            message.replace('&', '&amp;').replace('"', '&quot;')
+            message.replace('<', '&lt;').replace('>', '&gt;')
             return message
     
         def decode(self, message: str) -> str:

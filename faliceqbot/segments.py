@@ -102,12 +102,12 @@ class Base_Adapter:
         def respond(self, group_id: int) -> Callable[[str], None]:
             def wrapper(message: str) -> None:
                 time.sleep(self.config.delay)
-                self.API.send_message(group_id, message)
+                self.API.send_message(group_id, self.Formatter.encode(message))
             return wrapper
         
         def respond_private(self, user_id: int) -> Callable[[str], None]:
             def wrapper(message: str) -> None:
-                self.API.send_private_message(user_id, message)
+                self.API.send_private_message(user_id, self.Formatter.encode(message))
             return wrapper
 
 
@@ -164,6 +164,7 @@ class Message:
         self._respond: Callable[[str], None] = respond_function if respond_function is not None else self._empty_respond
         self.tag: Optional[str] = None
         self.Sender: Sender
+        self.PLuginList: list[Plugin] = []
     
     def _empty_respond(self, *args, **kwargs) -> None:
         logger.fail("Response function is not defined (may be a service) but you tried to pass a content to it!")
@@ -172,6 +173,8 @@ class Message:
         self._respond((content if self.tag is None else '[{}]\n{}'.format(self.tag, content)).strip('\n').strip(' '))
     
     def reply(self, content: str) -> None:
+        if not self.private:
+            content = f'<<AT:{self.user.id}>> ' + content
         self.respond(content)
 
     def get_permission(self) -> int:

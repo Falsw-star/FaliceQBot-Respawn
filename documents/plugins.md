@@ -3,7 +3,7 @@
 Falice提供了一个不规范但较简易的插件模式。其流程可以分为：  
 1. 机器人访问插件文件夹；  
 2. 机器人导入每一个.**py**文件作为一个模块；  
-3. 机器人运行每个模块的**load**函数，该函数返回一个**Plugin**对象；  
+3. 机器人运行每个模块的**load**函数，该函数返回一个**Plugin**对象(**该对象也可以在QBot类实例化时被传入**)；  
 4. 机器人将每个**Plugin**对象添加到**PluginList**中，并将列表传给**Matcher**，开始对每条消息匹配。  
 ## 编写插件
 ### 实例化Plugin类
@@ -36,6 +36,7 @@ YourPlugin.onCommand(your_function, "your_command")
 def load():
     return YourPlugin
 ```  
+#### 你也可以在你的机器人入口文件实例化QBot类的时候添加plugin_list=[YourPlugin]，则无需load函数。当然也可以把插件写在入口文件中。这样你的插件可以拥有更高的权限：*直接对QBot对象进行操作*。
 ### 恭喜！你完成了你的插件！它看起来像这样：
 ```
 from faliceqbot import Plugin, Message

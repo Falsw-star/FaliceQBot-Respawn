@@ -1,9 +1,8 @@
 from faliceqbot.segments import Message, Plugin, PluginList
-from faliceqbot.segments import PluginFuncType, PluginTriggerType, PluginTriggerListType
+from faliceqbot.segments import PluginFuncType, PluginTriggerListType
 
 class Matcher:
     def __init__(self, PluginList: PluginList) -> None:
-        self.match_private: bool = False
         self.PLuginList = PluginList
         self.plugin_list: list[Plugin] = []
         self.on_message_list: PluginTriggerListType = []
@@ -56,7 +55,6 @@ class Matcher:
 
 
     def match(self, message: Message) -> list[PluginFuncType]:
-        self.match_private = message.private
         self.plugin_list = self.PLuginList.plugin_list
         self.on_message_list = [plugin_trigger for plugin in self.plugin_list for plugin_trigger in plugin.onMessageList if plugin.enable and not plugin.get_disabled(message.user, message.private)]
         self.on_command_list = [plugin_trigger for plugin in self.plugin_list for plugin_trigger in plugin.onCommandList if plugin.enable and not plugin.get_disabled(message.user, message.private)]

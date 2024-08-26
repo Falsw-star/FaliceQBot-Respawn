@@ -1,4 +1,4 @@
-from Falice.segments import Plugin, Message
+from faliceqbot import Plugin, Message
 
 Echo = Plugin("Echo","1.0.0","Falsw","The bot will make a repeat.")
 def echo(message: Message) -> None:

@@ -1,6 +1,6 @@
 # Message对象  
 ## 介绍  
-适配器接收到每条消息时都会产生一个**Message**对象用于表示这条消息。这条消息触发的插件的事件监听器的函数将以唯一的参数的形式接收到这个**Message**对象。  
+[适配器(Adapter)](./Adapter.md)接收到每条消息时都会产生一个**Message**对象用于表示这条消息。这条消息触发的插件的事件监听器的函数将以唯一的参数的形式接收到这个**Message**对象。  
 ## 属性
 属性|类型|描述
 :-|:-|:-
@@ -14,7 +14,7 @@ tag|str|默认为None，若进行手动设置，在使用respond方法时会将t
 方法|需求参数|参数类型|返回值类型|描述
 :-|:-|:-|:-|:-
 respond|content|str|None|向本条消息所在的会话发送消息
-reply|content|str|None|与respond方法完全相同
+reply|content|str|None|若为群聊消息，at发送者，其余与respond同
 get_permission|None|None|int|获取本条消息发送者的权限等级
 get_text|None|None|str|返回content属性的值
 get_command|None|None|str|将假设消息符合指令格式，返回本条消息的指令头
