@@ -240,6 +240,7 @@ class Plugin:
         self.onEndsWithList: PluginTriggerListType = []
         self.onKeywordsList: PluginTriggerListType = []
         self.onFullMatchList: PluginTriggerListType = []
+        self.onShutdownList: list[Callable] = []
 
     def __str__(self) -> str:
         return self.name + '{' + '{}{}{}{}{}{}'.format(
@@ -314,6 +315,12 @@ class Plugin:
         """
         for content in self._ensure_list(commands):
             self.onFullMatchList.append(PluginTriggerType(function, content, permission, priority, block))
+    
+    def onShutdown(self, function: Callable[[None], None]) -> None:
+        """
+        Load a trigger runs when bot is shutting down.
+        """
+        self.onShutdownList.append(function)
 
 
 class PluginList:

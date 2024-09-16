@@ -172,3 +172,6 @@ class QBot:
             for file in self.log_files.values():
                 file.write(f'\nEnd Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\n\n')
                 file.close()
+            for ShutdownList in [plugin.onShutdownList for plugin in self.PLUGINS if plugin.enable]:
+                for function in ShutdownList:
+                    function()
