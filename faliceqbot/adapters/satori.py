@@ -45,11 +45,12 @@ class Adapter(Base_Adapter):
     
     class Formatter(Base_Adapter.Formatter):
         def encode(self, message: str) -> str:
+            message.replace('&', '&amp;').replace('"', '&quot;')
+            message = re.sub(r'(?<![<])<(?![<])', '&lt;', message)
+            message = re.sub(r'(?<![>])>(?![>])', '&gt;', message)
             message = re.sub(r'<<IMAGE:(.*?)>>', r'<img src="\1"/>', message)
             message = re.sub(r'<<FILE:(.*?)>>', r'<file src="\1"/>', message)
             message = re.sub(r'<<AT:(.*?)>>', r'<at id="\1"/>', message)
-            message.replace('&', '&amp;').replace('"', '&quot;')
-            message.replace('<', '&lt;').replace('>', '&gt;')
             return message
     
         def decode(self, message: str) -> str:

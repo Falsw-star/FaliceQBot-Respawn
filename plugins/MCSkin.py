@@ -20,6 +20,8 @@ def littleskin(name) -> tuple[bool, str]:
             return False, 'Cannot find skin'
     except TimeoutError:
         return False, 'Timed out'
+    except KeyError:
+        return False, 'Cannot find skin'
 
 def mojang(name) -> tuple[bool, str]:
     try:
