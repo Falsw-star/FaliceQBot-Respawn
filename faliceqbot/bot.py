@@ -147,7 +147,7 @@ class QBot:
                         except KeyError:
                             self.log_files[chat_name] = open(f'logs/{chat_name}.log', 'a', encoding='utf-8')
                             try:
-                                self.log_files[chat_name].write(f'Start Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}')
+                                self.log_files[chat_name].write(f'Start Time: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
                                 self.log_files[chat_name].write(f'\n{message.user.id} : {message.content}')
                             except Exception as e:
                                 logger.error(f'Error writing to log file: {e}')
@@ -170,7 +170,7 @@ class QBot:
         finally:
             self.Listener.STATUS = False
             for file in self.log_files.values():
-                file.write(f'\nEnd Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}\n\n')
+                file.write(f'\nEnd Time: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}\n\n')
                 file.close()
             for ShutdownList in [plugin.onShutdownList for plugin in self.PLUGINS if plugin.enable]:
                 for function in ShutdownList:
