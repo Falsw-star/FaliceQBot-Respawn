@@ -132,10 +132,10 @@ class Sender:
         return result.strip('\n').strip(' ')
 
     def send_message(self, group_id: int, message: str) -> None:
-        self.API.send_message(group_id, self.Formatter.encode(message).strip('\n').strip(' '))
+        self.API.send_message(group_id, message.strip('\n').strip(' '))
     
     def send_private_message(self, user_id: int, message: str) -> None:
-        self.API.send_private_message(user_id, self.Formatter.encode(message).strip('\n').strip(' '))
+        self.API.send_private_message(user_id, message.strip('\n').strip(' '))
     
     def get_user(self, user_id: int) -> User | None:
         return self.API.get_user(user_id)

@@ -4,7 +4,7 @@ Adapter in satori
 from faliceqbot import logger
 from faliceqbot.segments import Group, User, Message, Base_Adapter
 import re
-import requests
+import httpx
 import threading, time
 import json
 from websocket import WebSocketApp, WebSocket
@@ -68,7 +68,7 @@ class Adapter(Base_Adapter):
                 "X-Self-ID": self.authorization.bot_id
             }
             return {
-                'body': requests.post(self.config.httpbase.replace(' ', '').strip('/') + '/' + api, json=data, headers=headers).json()
+                'body': httpx.post(self.config.httpbase.replace(' ', '').strip('/') + '/' + api, json=data, headers=headers).json()
             }
 
         def send_message(self, group_id: int, message: str) -> None:
