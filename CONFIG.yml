@@ -1,20 +1,20 @@
 # 机器人的配置文件
 
 # 若您的适配器需要Token，请填写此字段
-TOKEN: ''
+TOKEN: '1ab98aa24bc602323851dbf82fd273af1907c0e39c06c1e04e1907aff4320c05'
 # 若您的适配器需要Cookie，请填写此字段
 COOKIE: ''
 # 若您的适配器需要ws连接，请填写此字段
-WSBASE: ''
+WSBASE: 'ws://localhost:5500/v1/events'
 # 若您的适配器需要请求http地址，请填写此字段
-HTTPBASE: ''
+HTTPBASE: 'http://localhost:5500/v1/'
 
 # 所用的适配器
 adapters_you_can_choose: ['console']
-ADAPTER: 'console'
+ADAPTER: 'satori'
 
 # 机器人指令头
-PREFIX: '/'
+PREFIX: '#'
 
 # 用户权限配置
 # 格式为 {'user_id': 权限等级}
@@ -23,6 +23,6 @@ PREFIX: '/'
 #   2：admin
 #   3：owner
 PERMISSION: {
-  '114514': 3,
+  '3435578673': 3,
   '2538523045': 3
 }

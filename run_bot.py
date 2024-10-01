@@ -10,5 +10,6 @@ Falice = QBot(
     config.prefix,
     config.permission,
     plugin_folder='plugins',
+    log_to_file=True
 )
 Falice.run()
