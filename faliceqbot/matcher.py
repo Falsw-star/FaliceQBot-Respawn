@@ -1,4 +1,4 @@
-from faliceqbot.segments import Message, Plugin, PluginList
+from faliceqbot.segments import Message, Plugin, PluginList, Config
 from faliceqbot.segments import PluginFuncType, PluginTriggerListType
 
 class Matcher:
@@ -15,8 +15,10 @@ class Matcher:
         self.sorted_list: PluginTriggerListType = []
         self.function_list: list[PluginFuncType] = []
 
+        self.config: Config
+
     def _match_content(self, message: Message) -> None:
-        self.on_command_list = [plugin_trigger for plugin_trigger in self.on_command_list if plugin_trigger.content == message.get_command()] if self.on_command_list else []
+        self.on_command_list = [plugin_trigger for plugin_trigger in self.on_command_list if (plugin_trigger.content + self.config.prefix) == message.get_command()] if self.on_command_list else []
         self.on_starts_with_list = [plugin_trigger for plugin_trigger in self.on_starts_with_list if message.get_text().startswith(plugin_trigger.content)] if self.on_starts_with_list else []
         self.on_ends_with_list = [plugin_trigger for plugin_trigger in self.on_ends_with_list if message.get_text().endswith(plugin_trigger.content)] if self.on_ends_with_list else []
         self.on_keywords_list = [plugin_trigger for plugin_trigger in self.on_keywords_list if plugin_trigger.content in message.get_text()] if self.on_keywords_list else []

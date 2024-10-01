@@ -184,7 +184,7 @@ class Message:
         return self.content
     
     def get_command(self) -> str:
-        return self.content.split(" ")[0][len(self.config.prefix):]
+        return self.content.split(" ")[0]
 
     def get_args(self) -> list:
         args = self.content.split(" ")
@@ -327,7 +327,7 @@ class PluginList:
     def __init__(self, plugin_list: list[Plugin]) -> None:
         self.plugin_list: list[Plugin] = plugin_list
         PluginManager = Plugin('PluginManager','1.0.0','Falsw','Manage Plugins by enable or disable.')
-        PluginManager.onCommand(function=self.plugin_manager, commands=['plugin','pl'], permission=3, priority=10, block=True)
+        PluginManager.onCommand(function=self.plugin_manager, commands=['plugin','pl'], permission=1, priority=10, block=True)
         self.plugin_list.append(PluginManager)
     
     def plugin_status(self, message: Message, act: bool, is_load: bool):
@@ -388,5 +388,3 @@ class PluginList:
                         self.plugin_status(message, True, False)
                     case 'ban':
                         self.plugin_status(message, False, False)
-
-

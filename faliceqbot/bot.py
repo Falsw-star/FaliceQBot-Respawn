@@ -106,6 +106,7 @@ class QBot:
                 return
             if len(args) == 0:
                 msg.respond('Usage: exception <last/count/list/clear/show>')
+                msg.respond(f'Last exception: {self.exceptions[-1][0]}')
                 return
             if args[0] == 'last':
                 msg.respond(f'Last exception: {self.exceptions[-1][0]}')
@@ -122,17 +123,21 @@ class QBot:
                     msg.respond('Usage: exception show <index>')
                     return
                 try:
-                    index = int(args[1])
+                    if args[1] == 'last':
+                        index = 1
+                    else:
+                        index = int(args[1])
                     exceptiontuple = self.exceptions[-index]
                     msg.respond(f'An exception( {exceptiontuple[0]} ) occurred at function {exceptiontuple[1]}, at time {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(exceptiontuple[2]))}.\n{exceptiontuple[3]}')
                 except ValueError:
-                    msg.respond('Index must be a number.')
+                    msg.respond('Index must be a number or \'last\'')
                 except IndexError:
                     msg.respond(f'Index out of range ( Should be between 1 and {len(self.exceptions)} but {args[1]} was given )')
         StackTrace.onCommand(stack_trace, 'exception')
         self.PLUGINS.append(StackTrace)
 
         self.matcher = Matcher(PluginList(self.PLUGINS))
+        self.matcher.config = self.config
         try:
             while self.STATUS:
                 if self.MESSAGES:
@@ -160,10 +165,8 @@ class QBot:
             raise self.BotFinishException()
         except self.BotFinishException:
             logger.info('Bot stopped, exiting...')
-            exit(0)
         except KeyboardInterrupt:
             logger.info('Ctrl+C pressed, exiting...')
-            exit(0)
         except Exception as e:
             logger.error('Error: {}'.format(e))
             logger.error('{}'.format(traceback.format_exc()))
@@ -175,3 +178,4 @@ class QBot:
             for ShutdownList in [plugin.onShutdownList for plugin in self.PLUGINS if plugin.enable]:
                 for function in ShutdownList:
                     function()
+            exit(0)
