@@ -65,17 +65,11 @@ def song_url(message: Message):
                 result.append(song_format(song))
             else:
                 result.append(f'无法获取链接！\n{song["msg"]}')
+        message.respond('\n'.join(result))
     elif code == 503:
         msg = response['msg'][0]
         message.respond(f'网易云音乐API请求失败:\n{msg}\nncmrf 刷新一下试试？')
         return
-    
-    if len(result) == 1:
-        message.reply(result[0])
-    else:
-        final_result = '\n'.join(result)
-        respond_id = message.user.id if message.private else message.group_id
-        message.Sender.send_message(respond_id, final_result)
 
 def refresh(message: Message):
     api_url = 'http://127.0.0.1:25565/web/netease/refresh'
