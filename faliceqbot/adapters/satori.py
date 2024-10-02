@@ -67,9 +67,18 @@ class Adapter(Base_Adapter):
                 "X-Platform": self.authorization.platform,
                 "X-Self-ID": self.authorization.bot_id
             }
-            return {
-                'body': httpx.post(self.config.httpbase.replace(' ', '').strip('/') + '/' + api, json=data, headers=headers).json()
-            }
+            try:
+                body = httpx.post(self.config.httpbase.replace(' ', '').strip('/') + '/' + api, json=data, headers=headers)
+            except ConnectionError as e:
+                logger.error(f'Satori API failed to post: ConnectionError({str(e)})')
+                raise e
+            try:
+                return {
+                    "body": body.json()
+                }
+            except Exception as e:
+                logger.error(f'Satori API failed to parse message: {e}\nOringinal message: {body.text}')
+                raise e
 
         def send_message(self, group_id: int, message: str) -> None:
             self._post('message.create', {
