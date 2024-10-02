@@ -1,3 +1,4 @@
 pyyaml
 websocket
 websocket-client
+httpx
