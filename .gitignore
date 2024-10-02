@@ -2,3 +2,4 @@
 *.log
 *.DS_Store
 CONFIG.yml
+pyproject.toml
