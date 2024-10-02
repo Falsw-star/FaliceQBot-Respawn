@@ -1,7 +1,7 @@
 from faliceqbot import Plugin, Message
 import time
 
-Poker = Plugin("FastPoker")
+Poker = Plugin("FastPoker", load_on_launch=False)
 
 def poke(message: Message):
     args = message.get_args()
